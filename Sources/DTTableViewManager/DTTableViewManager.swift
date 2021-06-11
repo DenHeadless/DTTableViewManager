@@ -94,7 +94,7 @@ open class DTTableViewManager {
     ///  Factory for creating cells and views for UITableView
     final lazy var viewFactory: TableViewFactory = {
         precondition(isManagingTableView, "Received attempt to register views for UITableView, but UITableView is nil.")
-        //swiftlint:disable:next force_unwrapping
+        // swiftlint:disable:next force_unwrapping
         let factory = TableViewFactory(tableView: self.tableView!)
         factory.anomalyHandler = anomalyHandler
         factory.resetDelegates = { [weak self] in
@@ -237,6 +237,7 @@ open class DTTableViewManager {
         storage = ProxyDiffableDataSourceStorage(tableView: tableView,
                                                                  dataSource: dataSource,
                                                                  modelProvider: modelProvider)
+        tableDataSource?.applyDiffableDatasourcesWorkaroundForXcode13()
         tableView.dataSource = tableDataSource
         
         return dataSource
@@ -261,6 +262,7 @@ open class DTTableViewManager {
         storage = ProxyDiffableDataSourceStorage(tableView: tableView,
                                                                  dataSource: dataSource,
                                                                  modelProvider: modelProvider)
+        tableDataSource?.applyDiffableDatasourcesWorkaroundForXcode13()
         tableView.dataSource = tableDataSource
         
         return dataSource

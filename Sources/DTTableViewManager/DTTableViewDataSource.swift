@@ -33,6 +33,12 @@ open class DTTableViewDataSource : DTTableViewDelegateWrapper, UITableViewDataSo
         tableView?.dataSource = self
     }
     
+    private var shouldWorkAroundXcode13DiffableDatasourceException: Bool = false
+    
+    internal func applyDiffableDatasourcesWorkaroundForXcode13() {
+        shouldWorkAroundXcode13DiffableDatasourceException = true
+    }
+    
     /// Implementation for `UITableViewDataSource` protocol
     open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return storage?.numberOfItems(inSection: section) ?? 0
@@ -127,4 +133,20 @@ open class DTTableViewDataSource : DTTableViewDelegateWrapper, UITableViewDataSo
         return (delegate as? UITableViewDataSource)?.tableView?(tableView, sectionForSectionIndexTitle: title, at: index) ?? 0
     }
     #endif
+    
+    /// FB9134901. UICollectionViewDiffableDataSource crashes the app if collection view datasource is not an instance or subclass of UICollectionViewDiffableDataSource (Xcode 13).
+    /// Apple response:
+    ///    This behaves as expected.
+    ///
+    ///   You cannot use UICollectionViewDiffableDataSource externally like this.
+    ///
+    /// Narrator:
+    ///    But he could. And it was glorious.
+    open override func responds(to aSelector: Selector) -> Bool {
+        print(aSelector)
+        if shouldWorkAroundXcode13DiffableDatasourceException, aSelector.description == "_isDiffableDataSource" {
+            return true
+        }
+        return super.responds(to: aSelector)
+    }
 }
